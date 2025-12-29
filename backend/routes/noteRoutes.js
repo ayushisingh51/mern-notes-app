@@ -6,13 +6,35 @@ const router = express.Router();
 // CREATE note
 router.post("/add", async (req, res) => {
   try {
-    const note = new Note(req.body);
+    console.log("BODY:", req.body); // 👈 important for debug
+
+    const title = req.body.title;
+    const content = req.body.content;
+
+    if (!title || !content) {
+      return res.status(400).json({
+        error: "Title and content are required",
+      });
+    }
+
+    const note = new Note({
+      title,
+      content,
+    });
+
     await note.save();
-    res.json({ message: "Note saved successfully" });
-  } catch (err) {
-    res.status(500).json(err);
+
+    res.status(201).json({
+      message: "Note saved successfully",
+    });
+  } catch (error) {
+    console.error("POST ERROR:", error);
+    res.status(500).json({
+      error: "Internal Server Error",
+    });
   }
 });
+
 
 // READ notes
 router.get("/", async (req, res) => {
